@@ -23,6 +23,12 @@ public class SecurityConfig {
 			"/api/auth/reset-password"
 	};
 
+	/**
+	 * Permitted at the filter level only. InternalMemberController checks the X-Internal-Service-Key header
+	 * itself, and this route does not accept bearer tokens.
+	 */
+	private static final String INTERNAL_MEMBER_ENDPOINT = "/api/internal/members";
+
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http
@@ -31,6 +37,7 @@ public class SecurityConfig {
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authorizeHttpRequests(auth -> auth
 						.requestMatchers(HttpMethod.POST, PUBLIC_POST_ENDPOINTS).permitAll()
+						.requestMatchers(HttpMethod.POST, INTERNAL_MEMBER_ENDPOINT).permitAll()
 						.requestMatchers("/error").permitAll()
 						.anyRequest().authenticated())
 				.oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
